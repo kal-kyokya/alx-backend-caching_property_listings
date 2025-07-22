@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:16-alpine # Using a specific minor version and alpine for smaller image
+    image: postgres:16-alpine # Using a specific minor version and alpine for smaller image instead of postgres:latest
     container_name: postgres_db
     environment:
       POSTGRES_DB: alx_properties_db # Database name
@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/ # Persit data
 
   redis:
-    image: redis:7-alpine # Using a specific minor version and alpine for smaller image
+    image: redis:7-alpine # Using a specific minor version and alpine for smaller image instead of postgres:latest
     container_name: redis_cache
     ports:
       - "6379:6379" # Host:Container
