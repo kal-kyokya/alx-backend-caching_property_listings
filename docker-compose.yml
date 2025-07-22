@@ -1,37 +1,41 @@
 version: '3.8'
 
 services:
-	db:
-		image: postgres:16-alpine
-		container_name: postgres_db
-		environment:
-			POSTGRES_DB: alx_properties_db
-			POSTGRES_USER: alx_user
-			POSTGRES_PASSWORD: alx_password
-		ports:
-			- "5432:5432" # Host:Container
-		volumes:
-			- postgres_data:/var/lib/postgresql/data/
+  db:
+    image: postgres:16-alpine # Using a specific minor version and alpine for smaller image
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: alx_properties_db # Database name
+      POSTGRES_USER: alx_user # Database user
+      POSTGRES_PASSWORD: alx_password # Database password
+    ports:
+      - "5432:5432" # Host:Container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/ # Persit data
 
-	redis:
-		image: redis:7-alpine
-		container_name: redis_cache
-		ports:
-			- "6379:6379"
-		command: redis-server --appendlonly yes
-		volumes:
-			- redis_data:/data
+  redis:
+    image: redis:7-alpine # Using a specific minor version and alpine for smaller image
+    container_name: redis_cache
+    ports:
+      - "6379:6379" # Host:Container
+    command: redis-server --appendlonly yes # Enable AOF for persistence (optional, good practice)
+    volumes:
+      - redis_data:/data # Persist data
 
-	web:
-		build: .
-		container_name: django_app
-		command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-		volumes:
-			- .:/app
-		ports:
-			- "8000:8000"
-		env_file:
-			- .env
-		depends_on:
-			- db
-			- redis
+  web:
+    build: . # Build the Django app from the current directory (Where Dockerfile will be)
+    container_name: django_app
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000" # Run migrations and server
+    volumes:
+      - .:/app # Mount current directory into container
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env # Load environment variables (for Django settings, etc.)
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:
+  redis_data:
