@@ -12,3 +12,12 @@ services:
 			- "5432:5432" # Host:Container
 		volumes:
 			- postgres_data:/var/lib/postgresql/data/
+
+	redis:
+		image: redis:7-alpine
+		container_name: redis_cache
+		ports:
+			- "6379:6379"
+		command: redis-server --appendlonly yes
+		volumes:
+			- redis_data:/data
