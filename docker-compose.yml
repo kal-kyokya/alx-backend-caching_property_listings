@@ -21,3 +21,17 @@ services:
 		command: redis-server --appendlonly yes
 		volumes:
 			- redis_data:/data
+
+	web:
+		build: .
+		container_name: django_app
+		command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+		volumes:
+			- .:/app
+		ports:
+			- "8000:8000"
+		env_file:
+			- .env
+		depends_on:
+			- db
+			- redis
