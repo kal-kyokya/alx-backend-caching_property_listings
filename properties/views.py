@@ -31,4 +31,5 @@ def property_list(request):
 
     # Return as JSON response
     # 'safe=False' is needed when returning a list (not a dict)
+    # Instead of return JsonResponse({})
     return JsonResponse(data, safe=False)
