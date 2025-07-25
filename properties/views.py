@@ -5,6 +5,7 @@ from .models import Property
 from .utils import get_all_properties
 
 
+# Caching is handled by 'get_all_properties()' at a lower level
 def property_list(request):
     """Using a low-level cached utility, handles requests for all property records stored in DB.
     Args:
@@ -12,8 +13,10 @@ def property_list(request):
     Return:
     	Returns a list of all properties.
     """
+    # Use the utility function to get properties, which handles caching internally
     properties = get_all_properties()
 
+    # Convert QuerSet to a list of dictionaries for JSON response
     data = []
     for prop in properties:
         data.append({
@@ -25,6 +28,9 @@ def property_list(request):
             'created_at': prop.created_at,
         })
 
+    # Return as JSON response
+    # 'safe=False' is needed when returning a list (not a dict)
+    # Instead of return JsonResponse({})
     return JsonResponse(data, safe=False)
 
 """
