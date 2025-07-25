@@ -1,6 +1,9 @@
 from django.core.cache import cache
 from .models import Property
+import logging
 
+
+logger = logging.getLogger(__name__)
 
 def get_all_properties():
     """Fetches all properties, caching the queryset in Redis for 1 hour.
@@ -17,3 +20,43 @@ def get_all_properties():
         print("Serving all properties from cache.") # For demonstration
 
     return queryset
+
+
+def get_redis_cache_metrics():
+    """Connects to Redis and retrieves/logs keyspace hit/miss metrics.
+    Args:
+    	None
+    Return:
+    	Hits, misses, hit ratio.
+    """
+    try:
+        redis_client = cache.get_client('default')
+
+        info = redis_client.info()
+
+        keyspace_hits = info.get('keyspace_hits', 0)
+        keyspace_misses = info.get('keyspace_misses', 0)
+
+        total_lookups = keyspace_hits + keyspace_misses
+        hit_ratio = (keyspace_hits / total_lookups) * 100 if total_lookups > 0 else 0
+
+        metrics = {
+            'keyspace_hits': keyspace_hits,
+            'keyspace_misses': keyspace_misses,
+            'total_lookups': total_lookups,
+            'hit_ratio': round(hit_ratio, 2)
+        }
+
+        logger.info(f"Redis Cache Metrics: Hits={keyspace_hits}, Misses={keyspace_misses}", f"Total Lookups={total_lookups}, Hit Ratio={hit_ratio:.2f}%")
+
+        return metrics
+
+    except Exception as err:
+        logger.error(f"Error retrieving Redis cache metrics: {err}")
+
+        return {
+            'keyspace_hits': 0,
+            'keyspace_misses': 0,
+            'hit_ratio': 0,
+            'error': str(err)
+        }
