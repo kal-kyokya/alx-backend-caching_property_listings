@@ -3,6 +3,7 @@ from .models import Property
 import logging
 
 
+# Get a logger instance
 logger = logging.getLogger(__name__)
 
 def get_all_properties():
@@ -30,10 +31,15 @@ def get_redis_cache_metrics():
     	Hits, misses, hit ratio.
     """
     try:
+        # Get the underlying Redis client from django_redis
+        # '0' indicates the default Redis DB used by django_redis if configured
+        # with `LOCATION` for a specific database number like `.../1`
         redis_client = cache.get_client('default')
 
+        # Get Redis INFO, which contains various statistics
         info = redis_client.info()
 
+        # Extract hit and miss counts
         keyspace_hits = info.get('keyspace_hits', 0)
         keyspace_misses = info.get('keyspace_misses', 0)
 
@@ -44,7 +50,7 @@ def get_redis_cache_metrics():
             'keyspace_hits': keyspace_hits,
             'keyspace_misses': keyspace_misses,
             'total_lookups': total_lookups,
-            'hit_ratio': round(hit_ratio, 2)
+            'hit_ratio': round(hit_ratio, 2) # Round to 2 decimal places
         }
 
         logger.info(f"Redis Cache Metrics: Hits={keyspace_hits}, Misses={keyspace_misses}", f"Total Lookups={total_lookups}, Hit Ratio={hit_ratio:.2f}%")
